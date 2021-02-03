@@ -2,21 +2,28 @@
 
 public class CameraBehaviour : MonoBehaviour
 {
-	public float maxZMovementRatio;
 	public float screenWidth;
 	public float screenHeight;
 	public float scaleFactor = 1;
 
-	public bool drawEnabled = false;
+	public float maxZMovementRatio;
 
 	private Camera cam;
 	private float tanCamFov;
     private Rect viewportRect;
+    private bool drawEnabled = false;
 
-	// Start is called before the first frame update
-	void Start()
+    public void enableDraw() {
+        drawEnabled = true;
+    }
+    public void disableDraw() {
+        drawEnabled = false;
+    }
+
+    // Start is called before the first frame update
+    void Start()
 	{
-		WebCamManager.instance.inGameCamera = this;
+		WebCamManager.instance.setInGameCamera(this);
 		this.cam = GetComponent<Camera>();
 		tanCamFov = Mathf.Tan(Mathf.Deg2Rad * this.cam.fieldOfView / 2);
     }

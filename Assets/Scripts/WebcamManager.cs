@@ -27,18 +27,22 @@ public class WebCamManager
 	public static int camHeight;
 	public static int camFps;
 
-	private VideoCapture webcam;
-	private CudaCascadeClassifier haarCascade;
+    public Vector3 userPosition;
+	public bool webcamFeedbackEnabled = false;
+	public float userFaceSize = 15;
+
+	private CameraBehaviour inGameCamera;
+    private Texture2D currentFrame;
+    private Rectangle currentFace;
+    private VideoCapture webcam;
+    private CudaCascadeClassifier haarCascade;
     private float camDistanceRatio;
 
-	public Texture2D currentFrame;
-	public Rectangle currentFace;
-	public bool webcamFeedbackEnabled = false;
-	public Vector3 userPosition;
-	public float userFaceSize = 15;
-	public CameraBehaviour inGameCamera;
+    public void setInGameCamera(CameraBehaviour cam) {
+        this.inGameCamera = cam;
+    }
 
-	public void InitializeCameraAndClassifier(LoadingTextBehaviour loadingText) {
+    public void InitializeCameraAndClassifier(LoadingTextBehaviour loadingText) {
 		if (!CudaInvoke.HasCuda) throw new Exception("Error! Cuda not detected!");
 
 		loadingText.loadingMsg = "Creating buffers";
@@ -88,13 +92,13 @@ public class WebCamManager
 
 	public void StartCapture() {
 		this.webcam.Start();
-        this.inGameCamera.drawEnabled = true;
+        this.inGameCamera.enableDraw();
 		Debug.Log("*************Capture started");
 	}
 
 	public void StopCapture() {
 		this.webcam.Stop();
-        this.inGameCamera.drawEnabled = false;
+        this.inGameCamera.disableDraw();
         Debug.Log("*************Capture stopped");
 	}
 
@@ -121,14 +125,13 @@ public class WebCamManager
 
 		Rectangle face;
         if (faceRegion.Length > 0 && faceRegion[0].Width > 0) {
-            this.inGameCamera.drawEnabled = true;
             if (!IsRegionValid(faceRegion[0])) return;
 
             face = faceRegion[0];
             float meterPerPxl = (userFaceSize / face.Width) / 100f;
-            userPosition.x = -(face.X + (face.Width / 2) - (camWidth / 2)) * ((userFaceSize / face.Width) / 100);
-            userPosition.y = -(face.Y + (face.Height / 2) - (camHeight / 2)) * ((userFaceSize / face.Width) / 100);
-            userPosition.z = -camDistanceRatio * ((userFaceSize / face.Width) / 100);
+            this.userPosition.x = -(face.X + (face.Width / 2) - (camWidth / 2)) * ((userFaceSize / face.Width) / 100);
+            this.userPosition.y = -(face.Y + (face.Height / 2) - (camHeight / 2)) * ((userFaceSize / face.Width) / 100);
+            this.userPosition.z = -camDistanceRatio * ((userFaceSize / face.Width) / 100);
             currentFace = face;
         }
         else currentFace.Width = -1;

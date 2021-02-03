@@ -1,27 +1,25 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 
 using UnityEngine;
-using UnityEngine.UI;
-
 using UnityToolbag;
 
 public class CanvasBehaviour : MonoBehaviour
 {
-	public int camWidth = 720;
-	public int camHeight = 480;
-	public int camFps = 30;
-	public bool showWebCam = false;
+    public int camWidth = 720;
+    public int camHeight = 480;
+    public int camFps = 30;
+    public bool showWebCam = false;
 
-	public Text debugText;
+    //public Text debugText;
 
-	public bool webCamInitialized = false;
+    public bool webCamInitialized { get; private set; } = false;
 
-	public LoadingTextBehaviour loadingText;
-	public RawImage mainPic;
+    public LoadingTextBehaviour loadingText;
+	//public RawImage mainPic;
 
-	public void ToggleWebCam() {
+    private Thread initThread;
+
+    public void ToggleWebCam() {
 		showWebCam = !showWebCam;
 	}
 
@@ -33,8 +31,6 @@ public class CanvasBehaviour : MonoBehaviour
 		WebCamManager.instance.StartCapture();
 		webCamInitialized = true;
 	}
-
-	private Thread initThread;
 
 	// Start is called before the first frame update
 	void Start()
@@ -50,11 +46,9 @@ public class CanvasBehaviour : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		this.mainPic.enabled = this.showWebCam;
-		WebCamManager.instance.webcamFeedbackEnabled = this.showWebCam;
-		if (showWebCam) mainPic.texture = WebCamManager.instance.currentFrame;
-
-		//debugText.text = "X: " + WebCamManager.instance.userPosition.x + "\nY: " + WebCamManager.instance.userPosition.y + "\nZ: " + WebCamManager.instance.userPosition.z;
+		//this.mainPic.enabled = this.showWebCam;
+		//WebCamManager.instance.webcamFeedbackEnabled = this.showWebCam;
+		//if (showWebCam) mainPic.texture = WebCamManager.instance.currentFrame;
 	}
 
 	private void OnDestroy() {

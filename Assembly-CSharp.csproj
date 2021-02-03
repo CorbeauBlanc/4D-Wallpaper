@@ -69,7 +69,6 @@
     <Compile Include="Assets\Scripts\CameraBehaviour.cs" />
     <Compile Include="Assets\Scripts\CanvasBehaviour.cs" />
     <Compile Include="Assets\Scripts\LoadingTextBehaviour.cs" />
-    <Compile Include="Assets\Scripts\PostProcessCameraBehaviour.cs" />
     <Compile Include="Assets\Scripts\WebcamManager.cs" />
     <None Include="Assets\csc.rsp" />
     <Reference Include="UnityEngine">
