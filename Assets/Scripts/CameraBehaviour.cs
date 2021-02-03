@@ -7,7 +7,7 @@ public class CameraBehaviour : MonoBehaviour
 	public float screenHeight;
 	public float scaleFactor = 1;
 
-	public bool drawEnabled = true;
+	public bool drawEnabled = false;
 
 	private Camera cam;
 	private float tanCamFov;
@@ -27,14 +27,13 @@ public class CameraBehaviour : MonoBehaviour
         //this.transform.position = new Vector3(WebCamManager.instance.userPosition.x * scaleFactor,
         //    WebCamManager.instance.userPosition.y * scaleFactor,
         //    WebCamManager.instance.userPosition.z * scaleFactor);
-        
-        //SetScissorRect(viewportRect);
+        viewportRect = GetNormalizedScreenRect();
+        SetScissorRect(viewportRect);
     }
 
 	private void OnGUI() {
-		if (Event.current.type.Equals(EventType.Repaint) && drawEnabled) {
-            viewportRect = GetNormalizedScreenRect();
-            Graphics.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), cam.targetTexture, viewportRect, 0, 0, 0, 0);
+        if (Event.current.type.Equals(EventType.Repaint) && drawEnabled) {
+            Graphics.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), this.cam.targetTexture, viewportRect, 0, 0, 0, 0);
         }
 	}
 

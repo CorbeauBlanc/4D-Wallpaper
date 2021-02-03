@@ -1054,7 +1054,7 @@ MonoBehaviour:
   screenWidth: 53.2
   screenHeight: 30
   scaleFactor: 1000
-  drawEnabled: 0
+  drawEnabled: 1
 --- !u!1 &987714074
 GameObject:
   m_ObjectHideFlags: 0
