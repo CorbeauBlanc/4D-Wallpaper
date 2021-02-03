@@ -45,7 +45,11 @@ public class WebCamManager
 		Dispatcher.Invoke(() => {
 			this.currentFace = new Rectangle(0, 0, -1, -1);
 			this.currentFrame = new Texture2D(camWidth, camHeight, TextureFormat.RGB24, false);
-			this.userPosition = new Vector3();
+			this.userPosition = new Vector3(
+                inGameCamera.transform.position.x / inGameCamera.scaleFactor,
+                inGameCamera.transform.position.y / inGameCamera.scaleFactor,
+                inGameCamera.transform.position.z / inGameCamera.scaleFactor
+            );
 		});
 
 		Debug.Log("*************Loading Haar cascade");
@@ -116,7 +120,8 @@ public class WebCamManager
 		Rectangle[] faceRegion = haarCascade.Convert(region);
 
 		Rectangle face;
-		if (faceRegion.Length > 0 && faceRegion[0].Width > 0) {
+        if (faceRegion.Length > 0 && faceRegion[0].Width > 0) {
+            this.inGameCamera.drawEnabled = true;
             if (!IsRegionValid(faceRegion[0])) return;
 
             face = faceRegion[0];
@@ -125,8 +130,8 @@ public class WebCamManager
             userPosition.y = -(face.Y + (face.Height / 2) - (camHeight / 2)) * ((userFaceSize / face.Width) / 100);
             userPosition.z = -camDistanceRatio * ((userFaceSize / face.Width) / 100);
             currentFace = face;
-		}
-		else currentFace.Width = -1;
+        }
+        else currentFace.Width = -1;
 
 		if (webcamFeedbackEnabled) {
 			for (int i = 0; i < faceRegion.Length; i++) {

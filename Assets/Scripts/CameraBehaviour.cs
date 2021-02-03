@@ -24,11 +24,13 @@ public class CameraBehaviour : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-        //this.transform.position = new Vector3(WebCamManager.instance.userPosition.x * scaleFactor,
-        //    WebCamManager.instance.userPosition.y * scaleFactor,
-        //    WebCamManager.instance.userPosition.z * scaleFactor);
-        viewportRect = GetNormalizedScreenRect();
-        SetScissorRect(viewportRect);
+        if (drawEnabled) {
+            this.transform.position = new Vector3(WebCamManager.instance.userPosition.x * scaleFactor,
+                WebCamManager.instance.userPosition.y * scaleFactor,
+                WebCamManager.instance.userPosition.z * scaleFactor);
+            viewportRect = GetNormalizedScreenRect();
+            SetScissorRect(viewportRect);
+        }
     }
 
 	private void OnGUI() {

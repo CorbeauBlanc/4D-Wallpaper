@@ -1054,7 +1054,7 @@ MonoBehaviour:
   screenWidth: 53.2
   screenHeight: 30
   scaleFactor: 1000
-  drawEnabled: 1
+  drawEnabled: 0
 --- !u!1 &987714074
 GameObject:
   m_ObjectHideFlags: 0
@@ -1152,7 +1152,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1206471286
 MonoBehaviour:
   m_ObjectHideFlags: 0
