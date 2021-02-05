@@ -2,10 +2,10 @@
 
 public class CameraBehaviour : MonoBehaviour
 {
-	public float screenWidth;
-	public float screenHeight;
-	public float scaleFactor = 1;
+	[SerializeField] private float screenWidth;
+	[SerializeField] private float screenHeight;
 
+	public float scaleFactor = 1;
 	public float maxZMovementRatio;
 
 	private Camera cam;

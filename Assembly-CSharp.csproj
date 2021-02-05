@@ -65,11 +65,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Dispatcher\Dispatcher.cs" />
+    <Compile Include="Assets\EchidnaBehaviour.cs" />
     <Compile Include="Assets\Scripts\CamFeedbackBehaviour.cs" />
     <Compile Include="Assets\Scripts\CameraBehaviour.cs" />
     <Compile Include="Assets\Scripts\CanvasBehaviour.cs" />
     <Compile Include="Assets\Scripts\LoadingTextBehaviour.cs" />
     <Compile Include="Assets\Scripts\WebcamManager.cs" />
+    <None Include="Assets\Fantasy Forest Environment Free Sample\StandardNoCulling.shader" />
     <None Include="Assets\csc.rsp" />
     <Reference Include="UnityEngine">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.18f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

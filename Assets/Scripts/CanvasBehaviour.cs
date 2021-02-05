@@ -5,14 +5,14 @@ using UnityToolbag;
 
 public class CanvasBehaviour : MonoBehaviour
 {
-    public int camWidth = 720;
-    public int camHeight = 480;
-    public int camFps = 30;
-    public bool showWebCam = false;
+    [SerializeField] private int camWidth = 720;
+    [SerializeField] private int camHeight = 480;
+    [SerializeField] private int camFps = 30;
+    [SerializeField] private bool showWebCam = false;
 
     //public Text debugText;
 
-    public bool webCamInitialized { get; private set; } = false;
+    [HideInInspector] public bool webCamInitialized { get; private set; } = false;
 
     public LoadingTextBehaviour loadingText;
 	//public RawImage mainPic;
