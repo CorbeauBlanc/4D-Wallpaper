@@ -77,7 +77,7 @@ public class WebCamManager
 		loadingText.loadingMsg = "Initializing Haar cascade";
 
 		this.haarCascade.ScaleFactor = 1.005;
-		this.haarCascade.MinNeighbors = 15;
+		this.haarCascade.MinNeighbors = 20;
 		this.haarCascade.MinObjectSize = Size.Empty;
 		this.haarCascade.MaxNumObjects = 1;
 		this.haarCascade.FindLargestObject = true;

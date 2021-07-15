@@ -4,13 +4,14 @@ public class CameraBehaviour : MonoBehaviour
 {
 	[SerializeField] private float screenWidth;
 	[SerializeField] private float screenHeight;
-	[SerializeField] private float minSimTriggerDistance;
 	[SerializeField, Range(0, 1)] private float simTrustFactor = .7f;
+	[SerializeField] private float minSimTriggerDistance;
+	[SerializeField] private float minMovementDetectionDistance;
 
-	[Min(0)] public int camIndex = 0;
-	public float scaleFactor = 1;
 	public float minZMovementRatio;
 	public float maxZMovementRatio;
+	[Min(0)] public int camIndex = 0;
+	public float scaleFactor = 1;
 	public float horizontalFov = 60;
 
 	private Camera cam;
@@ -18,6 +19,7 @@ public class CameraBehaviour : MonoBehaviour
 	private Rect viewportRect;
 	private bool drawEnabled = false;
 	private Vector3[] positionsBuffer = new Vector3[3];
+	private Vector3 irregularityBuffer = Vector3.zero;
 	private float simulatedTime = 0f;
 	private float lastSimulatedTime = 0f;
 	private Vector3 simulatedVelocity = Vector3.zero;
@@ -28,6 +30,11 @@ public class CameraBehaviour : MonoBehaviour
 	}
 	public void disableDraw() {
 		drawEnabled = false;
+	}
+	private void OnGUI() {
+		if (Event.current.type.Equals(EventType.Repaint) && drawEnabled) {
+			Graphics.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), this.cam.targetTexture, viewportRect, 0, 0, 0, 0);
+		}
 	}
 
 	// Start is called before the first frame update
@@ -41,19 +48,12 @@ public class CameraBehaviour : MonoBehaviour
 	void Update() {
 		if (drawEnabled) {
 			this.simulatedTime += Time.deltaTime;
-			if (WebCamManager.instance.newFaceDetected) {
-				updatePositionsBuffer(new Vector3(WebCamManager.instance.userPosition.x * scaleFactor,
-				WebCamManager.instance.userPosition.y * scaleFactor,
-				WebCamManager.instance.userPosition.z * scaleFactor));
-				/* if (this.simulatedPosition != Vector3.zero && Vector3.Distance(this.positionsBuffer[0], this.simulatedPosition) > .3f)
-					//Debug.Log(Vector3.Distance(this.positionsBuffer[0], this.simulatedPosition));
-					Debug.Log(Vector3.Angle(this.positionsBuffer[0] - this.positionsBuffer[1], this.positionsBuffer[1] - this.positionsBuffer[2]) - Vector3.Angle(this.simulatedPosition - this.positionsBuffer[1], this.positionsBuffer[1] - this.positionsBuffer[2])); */
-				this.transform.position = this.positionsBuffer[0];
-				this.lastSimulatedTime = this.simulatedTime;
-				this.simulatedTime = 0f;
-				this.simulatedVelocity = Vector3.zero;
-				this.simulatedPosition = Vector3.zero;
-			} else if (canSimulatePosition()) {
+			if (WebCamManager.instance.newFaceDetected)
+				handleNewDetectedFace(new Vector3(
+					WebCamManager.instance.userPosition.x * scaleFactor,
+					WebCamManager.instance.userPosition.y * scaleFactor,
+					WebCamManager.instance.userPosition.z * scaleFactor));
+			else if (canSimulatePosition()) {
 				if (this.simulatedPosition == Vector3.zero) simulatePosition();
 				this.transform.position = Vector3.SmoothDamp(
 					this.transform.position,
@@ -67,10 +67,40 @@ public class CameraBehaviour : MonoBehaviour
 		}
 	}
 
-	private void OnGUI() {
-		if (Event.current.type.Equals(EventType.Repaint) && drawEnabled) {
-			Graphics.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), this.cam.targetTexture, viewportRect, 0, 0, 0, 0);
+	private void handleNewDetectedFace(Vector3 newVect) {
+		if (canFilterIrregularities(newVect)) {
+			if (this.irregularityBuffer == Vector3.zero) {
+				if (coherentMovementDetected(newVect))
+					updatePositionsBuffer(newVect);
+				else {
+					this.irregularityBuffer = newVect;
+					return;
+				}
+			}
+			else {
+				if (irregularityDetected(newVect)) {
+					this.irregularityBuffer = Vector3.zero;
+					/* this.handleNewDetectedFace(newVect);
+					return; */
+					updatePositionsBuffer(newVect);
+				}
+				else {
+					updatePositionsBuffer(this.irregularityBuffer);
+					updatePositionsBuffer(newVect);
+				}
+			}
 		}
+		else updatePositionsBuffer(newVect);
+
+		/* if (this.simulatedPosition != Vector3.zero && Vector3.Distance(this.positionsBuffer[0], this.simulatedPosition) > .3f)
+			//Debug.Log(Vector3.Distance(this.positionsBuffer[0], this.simulatedPosition));
+			Debug.Log(Vector3.Angle(this.positionsBuffer[0] - this.positionsBuffer[1], this.positionsBuffer[1] - this.positionsBuffer[2]) - Vector3.Angle(this.simulatedPosition - this.positionsBuffer[1], this.positionsBuffer[1] - this.positionsBuffer[2])); */
+
+		this.transform.position = this.positionsBuffer[0];
+		this.lastSimulatedTime = this.simulatedTime;
+		this.simulatedTime = 0f;
+		this.simulatedVelocity = Vector3.zero;
+		this.simulatedPosition = Vector3.zero;
 	}
 
 	private bool canSimulatePosition() {
@@ -79,6 +109,29 @@ public class CameraBehaviour : MonoBehaviour
 				this.positionsBuffer[0] != Vector3.zero &&
 				Mathf.Abs(Vector3.Distance(this.positionsBuffer[2], this.positionsBuffer[1])) > this.minSimTriggerDistance &&
 				Mathf.Abs(Vector3.Distance(this.positionsBuffer[1], this.positionsBuffer[0])) > this.minSimTriggerDistance);
+	}
+
+	private bool canFilterIrregularities(Vector3 newVect) {
+		return (this.positionsBuffer[0] != Vector3.zero &&
+				Mathf.Abs(Vector3.Distance(newVect, this.positionsBuffer[0])) > this.minMovementDetectionDistance);
+	}
+
+	private bool coherentMovementDetected(Vector3 newVect) {
+		if (this.positionsBuffer[0] == Vector3.zero || this.positionsBuffer[1] == Vector3.zero)
+			return true;
+		Vector3 previousMvt = this.positionsBuffer[0] - this.positionsBuffer[1];
+		Vector3 newMvt = newVect - this.positionsBuffer[0];
+		return (Mathf.Sign(previousMvt.x) == Mathf.Sign(newMvt.x) &&
+				Mathf.Sign(previousMvt.y) == Mathf.Sign(newMvt.y) &&
+				Mathf.Sign(previousMvt.z) == Mathf.Sign(newMvt.z));
+	}
+
+	private bool irregularityDetected(Vector3 newVect) {
+		Vector3 previousMvt = this.irregularityBuffer - this.positionsBuffer[0];
+		Vector3 newMvt = newVect - this.irregularityBuffer;
+		return (Mathf.Sign(previousMvt.x) != Mathf.Sign(newMvt.x) ||
+				Mathf.Sign(previousMvt.y) != Mathf.Sign(newMvt.y) ||
+				Mathf.Sign(previousMvt.z) != Mathf.Sign(newMvt.z));
 	}
 
 	private void updatePositionsBuffer(Vector3 newVect) {
