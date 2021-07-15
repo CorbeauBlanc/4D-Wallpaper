@@ -10,10 +10,6 @@ public class LoadingTextBehaviour : MonoBehaviour
 	private float lastTime = 0;
 	private Text loadingText;
 
-	public void HideLoadingText() {
-		this.gameObject.SetActive(false);
-	}
-
 	// Start is called before the first frame update
 	void Start()
 	{
